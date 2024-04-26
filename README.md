@@ -1,7 +1,7 @@
-# Nombre del Proyecto
+# CRUD API NET CORE MAUI
 
 ## Descripción
-Breve descripción de lo que hace tu aplicación MAUI con MudBlazor y cómo puede beneficiar a los usuarios.
+Es unaplicacion que consume una api y tienes las operaciones basicas es de ejemplo 
 
 ## Características
 - API completa
@@ -11,22 +11,4 @@ Breve descripción de lo que hace tu aplicación MAUI con MudBlazor y cómo pued
 ## Tecnologías Utilizadas
 - .NET MAUI
 - MudBlazor
-- Otros paquetes o tecnologías relevantes
 
-## Requisitos
-Lista de requisitos previos para ejecutar el proyecto.
-
-## Instalación
-Instrucciones paso a paso para configurar el entorno de desarrollo y ejecutar el proyecto localmente.
-
-## Uso
-Ejemplos de cómo utilizar la aplicación, con código de ejemplo si es posible.
-
-## Contribuir
-Instrucciones para otros desarrolladores sobre cómo pueden contribuir al proyecto.
-
-## Licencia
-Información sobre la licencia bajo la cual se distribuye el proyecto.
-
-## Contacto
-Información de contacto para soporte o preguntas adicionales.
