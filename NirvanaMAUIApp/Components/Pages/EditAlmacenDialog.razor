@@ -1,0 +1,44 @@
+﻿@using NirvanaMAUIApp.Models
+@using NirvanaMAUIApp.Services
+@inject IDialogService DialogService
+
+@inject IAlmacenService AlmacenService
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField @bind-Value="Almacen.nombre" Label="Nombre" />
+        <MudTextField @bind-Value="Almacen.descripcion" Label="Descripción" />
+        <MudTextField @bind-Value="Almacen.sucursalId" Label="Sucursal" />
+        <MudTextField @bind-Value="Almacen.estado" Label="estado" />
+       
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="Save">Guardar</MudButton>
+        <MudButton Color="Color.Secondary" OnClick="Cancel">Cancelar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter] public AlmacenModels ? Almacen { get; set; }
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    private async Task Save()
+    {
+        var success = await AlmacenService.UpdateAlmacen(Almacen);
+        if (success)
+        {
+            Snackbar.Add("Almacén actualizado con éxito", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            Snackbar.Add("Error al actualizar el almacén", Severity.Error);
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}

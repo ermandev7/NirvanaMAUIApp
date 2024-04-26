@@ -1,0 +1,116 @@
+﻿@page "/almacen"
+@using NirvanaMAUIApp.Models
+@using NirvanaMAUIApp.Services
+@using MudBlazor
+@inject IDialogService DialogService
+
+@inject ISnackbar Snackbar
+
+@inject IAlmacenService service
+
+<h3>Almacén</h3>
+
+@if (_data == null)
+{
+    <p><em>Cargando</em></p>
+}
+else
+{
+ 
+
+    @foreach (var result in _data.result)
+    {
+        <MudCard  Style="overflow: hidden; margin-bottom: 16px;" @key="@result.almacenId">
+            <MudCardContent Style="width: 100%;">
+                @if (currentlyEditingItemId == result.almacenId)
+                {
+                    <MudCardContent Style="width: 100%;">
+                        <MudTextField @bind-Value="result.nombre" Label="Nombre" />
+                        <MudTextField @bind-Value="result.descripcion" Label="Descripción" />
+                       
+                        <MudTextField @bind-Value="result.sucursalId" Label="Sucursal" />
+                        <MudTextField @bind-Value="result.estado" Label="estado" />
+                        <MudButton Color="Color.Primary" OnClick="() => SaveEdit( result)">Guardar</MudButton>
+                        <MudButton Color="Color.Secondary" OnClick="() => CancelEdit()">Cancelar</MudButton>
+
+                    </MudCardContent>
+                    
+                }
+                else
+                {
+                    <MudCardContent Style="width: 100%;">
+                        <MudText Typo="Typo.h4">Nombre: @result.nombre</MudText>
+                        <MudText>Descripción: @result.descripcion</MudText>
+                        <MudText>Sucursal: @result.sucursalId</MudText>
+                        <MudText>Estado: @result.estado</MudText>
+                    </MudCardContent>
+                   
+                }
+            </MudCardContent>
+            <MudCardActions Style="display: flex; width: 100%;">
+                <MudButton Color="Color.Primary" OnClick="() => OpenEditDialog(result)">Editar</MudButton>
+
+                <MudButton Color="Color.Secondary" Style="width: 50%;" OnClick="() => Delete(result.almacenId)">Eliminar</MudButton>
+            </MudCardActions>
+        </MudCard>
+    }
+
+}
+
+@code {
+    private Data _data;
+    private bool isEditing = false;
+    private int? currentlyEditingItemId = null;
+
+    private async Task OpenEditDialog(AlmacenModels almacenToEdit)
+    {
+        var parameters = new DialogParameters { ["Almacen"] = almacenToEdit };
+
+        var dialog = DialogService.Show<EditAlmacenDialog>("Editar Almacén", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+             LoadData();
+        }
+    }
+
+    private void StartEdit(int itemId)
+    {
+        currentlyEditingItemId = itemId;
+    }
+
+    private async void SaveEdit(AlmacenModels result)
+    {
+
+        var success = await service.UpdateAlmacen(result);
+        if (success)
+        {
+            Snackbar.Add("Almacén actualizado con éxito", Severity.Success);
+            LoadData();
+            currentlyEditingItemId = null; // Salir del modo de edición
+        }
+        else
+        {
+            Snackbar.Add("Error al actualizar el almacén", Severity.Error);
+        }
+        
+    }
+
+    private void CancelEdit()
+    {
+        currentlyEditingItemId = null; // Salir del modo de edición
+                                       // Opcional: Restablecer los valores originales si es necesario
+    }
+
+    private void Delete(int itemId)
+    {
+        service.DeleteAlmacen(itemId);
+    }
+    private async void LoadData()
+    {
+        _data = await service.get();
+        StateHasChanged(); // Esto notificará a Blazor que debe volver a renderizar el componente
+    }
+    protected override async Task OnInitializedAsync() => _data = await service.get();
+}
