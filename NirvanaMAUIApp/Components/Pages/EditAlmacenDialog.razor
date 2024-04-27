@@ -1,17 +1,19 @@
-﻿@using NirvanaMAUIApp.Models
+﻿@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using NirvanaMAUIApp.Models
 @using NirvanaMAUIApp.Services
 @inject IDialogService DialogService
-
 @inject IAlmacenService AlmacenService
 @inject ISnackbar Snackbar
 
 <MudDialog>
     <DialogContent>
-        <MudTextField @bind-Value="Almacen.nombre" Label="Nombre" />
-        <MudTextField @bind-Value="Almacen.descripcion" Label="Descripción" />
-        <MudTextField @bind-Value="Almacen.sucursalId" Label="Sucursal" />
-        <MudTextField @bind-Value="Almacen.estado" Label="estado" />
-       
+        <MudForm Model="Almacen" @ref="form">
+            <MudTextField @bind-Value="Almacen.nombre" Label="Nombre" For="@(() => Almacen.nombre)" />
+            <MudTextField @bind-Value="Almacen.descripcion" Label="Descripción" For="@(() => Almacen.descripcion)" />
+            <MudTextField @bind-Value="Almacen.sucursalId" Label="Sucursal" For="@(() => Almacen.sucursalId)" />
+            <MudTextField @bind-Value="Almacen.estado" Label="Estado" For="@(() => Almacen.estado)" />
+        </MudForm>
     </DialogContent>
     <DialogActions>
         <MudButton Color="Color.Primary" OnClick="Save">Guardar</MudButton>
@@ -20,20 +22,29 @@
 </MudDialog>
 
 @code {
-    [Parameter] public AlmacenModels ? Almacen { get; set; }
+    [Parameter] public AlmacenModels Almacen { get; set; } = new AlmacenModels();
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    MudForm form;
 
     private async Task Save()
     {
-        var success = await AlmacenService.UpdateAlmacen(Almacen);
-        if (success)
+        await form.Validate();
+
+        if (form.IsValid)
         {
-            Snackbar.Add("Almacén actualizado con éxito", Severity.Success);
-            MudDialog.Close(DialogResult.Ok(true));
-        }
-        else
-        {
-            Snackbar.Add("Error al actualizar el almacén", Severity.Error);
+            bool success = Almacen.almacenId == 0
+                ? await AlmacenService.RegistrarNuevoAlmacen(Almacen)
+                : await AlmacenService.UpdateAlmacen(Almacen);
+
+            if (success)
+            {
+                Snackbar.Add("Almacén guardado con éxito", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+            else
+            {
+                Snackbar.Add("Error al guardar el almacén", Severity.Error);
+            }
         }
     }
 

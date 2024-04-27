@@ -16,8 +16,8 @@
 }
 else
 {
- 
-
+    
+    
     @foreach (var result in _data.result)
     {
         <MudCard  Style="overflow: hidden; margin-bottom: 16px;" @key="@result.almacenId">
@@ -30,8 +30,7 @@ else
                        
                         <MudTextField @bind-Value="result.sucursalId" Label="Sucursal" />
                         <MudTextField @bind-Value="result.estado" Label="estado" />
-                        <MudButton Color="Color.Primary" OnClick="() => SaveEdit( result)">Guardar</MudButton>
-                        <MudButton Color="Color.Secondary" OnClick="() => CancelEdit()">Cancelar</MudButton>
+                   
 
                     </MudCardContent>
                     
@@ -54,13 +53,41 @@ else
             </MudCardActions>
         </MudCard>
     }
+    <MudFab OnClick="OpenCreateDialog" Class="boton-flotante" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" />
+
 
 }
+<style>
+    .boton-flotante {
+        position: fixed; /* Fija el elemento en la misma posición de la pantalla */
+        bottom: 16px; /* Distancia desde la parte inferior de la pantalla */
+        right: 16px; /* Distancia desde la parte derecha de la pantalla */
+        z-index: 1000; /* Asegura que el botón esté sobre otros elementos */
+    }
+</style>
 
 @code {
+
+
     private Data _data;
     private bool isEditing = false;
     private int? currentlyEditingItemId = null;
+    private async Task OpenCreateDialog()
+    {
+        var newAlmacen = new AlmacenModels(); // Crea un nuevo objeto AlmacenModels
+
+        var parameters = new DialogParameters { ["Almacen"] = newAlmacen };
+
+        var dialog = DialogService.Show<EditAlmacenDialog>("Crear Almacén", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            // Aquí puedes agregar el código para guardar el nuevo objeto en la base de datos
+            // Por ejemplo: await service.CreateAlmacen(newAlmacen);
+            LoadData();
+        }
+    }
 
     private async Task OpenEditDialog(AlmacenModels almacenToEdit)
     {

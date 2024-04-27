@@ -12,5 +12,6 @@ namespace NirvanaMAUIApp.Services
         Task<Data> get();
         Task<bool> UpdateAlmacen(AlmacenModels almacen);
         Task<bool> DeleteAlmacen(int almacenId);
+        Task<bool> RegistrarNuevoAlmacen(AlmacenModels almacen);
     }
 }

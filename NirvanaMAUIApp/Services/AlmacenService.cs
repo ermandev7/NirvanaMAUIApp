@@ -51,6 +51,22 @@ namespace NirvanaMAUIApp.Services
                 throw;
             }
         }
+        public async Task<bool> RegistrarNuevoAlmacen(AlmacenModels almacen)
+        {
+            try
+            {
+                var httpClient = new HttpClient();
+                var json = JsonSerializer.Serialize(almacen);
+                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var response = await httpClient.PostAsync($"{url}/Registrar", content);
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                // Manejo de excepciones
+                throw;
+            }
+        }
 
         public async Task<bool> DeleteAlmacen(int almacenId)
         {
