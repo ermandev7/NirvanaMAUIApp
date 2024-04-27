@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
 using NirvanaMAUIApp.Services;
+using NirvanaMAUIApp.StateCurrent;
 
 namespace NirvanaMAUIApp
 {
@@ -22,6 +23,9 @@ namespace NirvanaMAUIApp
     		builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();
             builder.Services.AddSingleton<IAlmacenService, AlmacenService>();
+            builder.Services.AddSingleton<ISucursalServices, SucursalService>();
+            builder.Services.AddScoped<AlmacenStateService>();
+
 #endif
 
             return builder.Build();

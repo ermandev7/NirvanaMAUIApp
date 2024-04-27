@@ -1,7 +1,11 @@
 ﻿@page "/almacen"
+@using NirvanaMAUIApp.Generic;
 @using NirvanaMAUIApp.Models
 @using NirvanaMAUIApp.Services
 @using MudBlazor
+@using NirvanaMAUIApp.StateCurrent
+@inject AlmacenStateService AlmacenStateService
+@inject NavigationManager NavigationManager
 @inject IDialogService DialogService
 
 @inject ISnackbar Snackbar
@@ -16,9 +20,11 @@
 }
 else
 {
- 
 
-    @foreach (var result in _data.result)
+    
+
+    
+    @foreach (var result in _data)
     {
         <MudCard  Style="overflow: hidden; margin-bottom: 16px;" @key="@result.almacenId">
             <MudCardContent Style="width: 100%;">
@@ -30,8 +36,7 @@ else
                        
                         <MudTextField @bind-Value="result.sucursalId" Label="Sucursal" />
                         <MudTextField @bind-Value="result.estado" Label="estado" />
-                        <MudButton Color="Color.Primary" OnClick="() => SaveEdit( result)">Guardar</MudButton>
-                        <MudButton Color="Color.Secondary" OnClick="() => CancelEdit()">Cancelar</MudButton>
+                   
 
                     </MudCardContent>
                     
@@ -55,62 +60,85 @@ else
         </MudCard>
     }
 
+    <MudFab OnClick="() => OpenCreateDialog()" Class="boton-flotante" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" />
+    
 }
+<style>
+    .boton-flotante {
+        position: fixed; /* Fija el elemento en la misma posición de la pantalla */
+        bottom: 16px; /* Distancia desde la parte inferior de la pantalla */
+        right: 16px; /* Distancia desde la parte derecha de la pantalla */
+        z-index: 1000; /* Asegura que el botón esté sobre otros elementos */
+    }
+</style>
 
 @code {
-    private Data _data;
+
+
+    private List<AlmacenModels> _data;
     private bool isEditing = false;
     private int? currentlyEditingItemId = null;
 
-    private async Task OpenEditDialog(AlmacenModels almacenToEdit)
+
+
+    private async Task OpenCreateDialog()
     {
-        var parameters = new DialogParameters { ["Almacen"] = almacenToEdit };
+        // Si no se proporciona un objeto AlmacenModels, crea uno nuevo
+        AlmacenModels almacen = new AlmacenModels();
 
-        var dialog = DialogService.Show<EditAlmacenDialog>("Editar Almacén", parameters);
-        var result = await dialog.Result;
+        AlmacenStateService.CurrentAlmacen = almacen;
 
-        if (!result.Cancelled)
-        {
-             LoadData();
-        }
+        // Navega a la página del formulario de edición
+        NavigationManager.NavigateTo("/EditAlmacenDialog");
     }
 
-    private void StartEdit(int itemId)
+    private async Task OpenEditDialog(AlmacenModels almacen)
     {
-        currentlyEditingItemId = itemId;
+        AlmacenStateService.CurrentAlmacen = almacen;
+
+        // Navega a la página del formulario de edición
+        NavigationManager.NavigateTo("/EditAlmacenDialog");
     }
 
-    private async void SaveEdit(AlmacenModels result)
-    {
 
-        var success = await service.UpdateAlmacen(result);
-        if (success)
+
+
+
+
+    private async Task Delete(int itemId)
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Confirmar eliminación",
+            "¿Estás seguro de que deseas eliminar?",
+            yesText: "Eliminar",
+            cancelText: "Cancelar"
+        );
+
+        if (result == true)
         {
-            Snackbar.Add("Almacén actualizado con éxito", Severity.Success);
-            LoadData();
-            currentlyEditingItemId = null; // Salir del modo de edición
+            // El usuario confirmó la eliminación
+            var success = await service.DeleteAlmacen(itemId);
+            if (success)
+            {
+                Snackbar.Add("Almacén eliminado con éxito", Severity.Success);
+                LoadData(); // Recarga los datos para reflejar la eliminación
+            }
+            else
+            {
+                Snackbar.Add("Error al eliminar el almacén", Severity.Error);
+            }
         }
         else
         {
-            Snackbar.Add("Error al actualizar el almacén", Severity.Error);
+            // El usuario canceló la eliminación
+            Snackbar.Add("Eliminación cancelada", Severity.Info);
         }
-        
     }
 
-    private void CancelEdit()
-    {
-        currentlyEditingItemId = null; // Salir del modo de edición
-                                       // Opcional: Restablecer los valores originales si es necesario
-    }
-
-    private void Delete(int itemId)
-    {
-        service.DeleteAlmacen(itemId);
-    }
     private async void LoadData()
     {
-        _data = await service.get();
-        StateHasChanged(); // Esto notificará a Blazor que debe volver a renderizar el componente
+        _data = await service.All();
+
     }
-    protected override async Task OnInitializedAsync() => _data = await service.get();
+    protected override async Task OnInitializedAsync() => _data = await service.All();
 }

@@ -1,44 +1,108 @@
-﻿@using NirvanaMAUIApp.Models
+﻿@page "/EditAlmacenDialog"
+@inject AlmacenStateService AlmacenStateService
+@using NirvanaMAUIApp.Generic
+@using NirvanaMAUIApp.Models
 @using NirvanaMAUIApp.Services
-@inject IDialogService DialogService
-
+@using NirvanaMAUIApp.StateCurrent
+@inject NavigationManager NavigationManager
 @inject IAlmacenService AlmacenService
+@inject ISucursalServices SucursalService
 @inject ISnackbar Snackbar
-
-<MudDialog>
-    <DialogContent>
-        <MudTextField @bind-Value="Almacen.nombre" Label="Nombre" />
-        <MudTextField @bind-Value="Almacen.descripcion" Label="Descripción" />
-        <MudTextField @bind-Value="Almacen.sucursalId" Label="Sucursal" />
-        <MudTextField @bind-Value="Almacen.estado" Label="estado" />
+ <MudText Typo="Typo.h5">@Title</MudText>
+ <MudCardContent Style="max-height: 80%; overflow-y: auto;">
+    <MudCard>
+        <MudCardContent >
        
-    </DialogContent>
-    <DialogActions>
-        <MudButton Color="Color.Primary" OnClick="Save">Guardar</MudButton>
-        <MudButton Color="Color.Secondary" OnClick="Cancel">Cancelar</MudButton>
-    </DialogActions>
-</MudDialog>
+            @if (Loading)
+            {
+                <MudProgressCircular Indeterminate="true"></MudProgressCircular>
+            }
+            else
+            {
+                <MudForm Model="Almacen" @ref="form">
+                    <MudTextField @bind-Value="Almacen.nombre" Label="Nombre" For="@(() => Almacen.nombre)" />
+                    <MudTextField @bind-Value="Almacen.descripcion" Label="Descripción" For="@(() => Almacen.descripcion)" />
+                    <MudSelect T="int" @bind-Value="Almacen.sucursalId" Label="Sucursal">
+                        @foreach (var sucursal in ListaSucursales)
+                        {
+                            <MudSelectItem Value="@sucursal.sucursalId">@sucursal.nombre</MudSelectItem>
+                        }
+                    </MudSelect>
+                    <MudTextField @bind-Value="Almacen.estado" Label="Estado" For="@(() => Almacen.estado)" />
+                   
+                </MudForm>
+            }
+        </MudCardContent>
+        <MudCardActions>
+            <MudButton Color="Color.Primary" OnClick="Save">Guardar</MudButton>
+            <MudButton Color="Color.Secondary" OnClick="Cancel">Cancelar</MudButton>
+        </MudCardActions>
+    </MudCard>
+</MudCardContent>
+
+    
 
 @code {
-    [Parameter] public AlmacenModels ? Almacen { get; set; }
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    private List<SucursalModels> ListaSucursales { get; set; }
 
-    private async Task Save()
+    private AlmacenModels Almacen { get; set; }
+    private bool Loading = false;
+    private MudForm form;
+    private string Title { get; set; } = "Almacen";
+    protected override async Task OnInitializedAsync()
     {
-        var success = await AlmacenService.UpdateAlmacen(Almacen);
-        if (success)
+        var r = await SucursalService.All(); // Especifica el tipo de datos
+        if (r != null)
         {
-            Snackbar.Add("Almacén actualizado con éxito", Severity.Success);
-            MudDialog.Close(DialogResult.Ok(true));
+            ListaSucursales = r;
+        }
+        if (AlmacenStateService.CurrentAlmacen != null)
+        {
+            // Utiliza el objeto almacenado para la edición
+         
+            Almacen = AlmacenStateService.CurrentAlmacen;
+           
         }
         else
         {
-            Snackbar.Add("Error al actualizar el almacén", Severity.Error);
+            // Crea un nuevo objeto AlmacenModels para un nuevo almacén
+           
+            Almacen = new AlmacenModels();
+           
         }
     }
 
+    private async Task Save()
+    {
+        await form.Validate();
+
+        if (form.IsValid)
+        {
+            Loading = true;
+            bool success = Almacen.almacenId == 0
+                ? await AlmacenService.RegistrarNuevoAlmacen(Almacen)
+                : await AlmacenService.UpdateAlmacen(Almacen);
+            Loading = false;
+
+            if (success)
+            {
+                //Snackbar.Add("Almacén guardado con éxito", Severity.Success);
+                // Navega de regreso a la lista de almacenes
+                Snackbar.Add($"{Title} guardado con éxito", Severity.Success);
+                NavigationManager.NavigateTo("/almacen");
+            }
+            else
+            {
+                //Snackbar.Add("Error al guardar el almacén", Severity.Error);
+                Snackbar.Add($"Error al {Title.ToLower()}", Severity.Error);
+            }
+        }
+    }
+   
+
     private void Cancel()
     {
-        MudDialog.Cancel();
+        // Navega de regreso a la lista de almacenes
+        NavigationManager.NavigateTo("/almacen");
     }
 }

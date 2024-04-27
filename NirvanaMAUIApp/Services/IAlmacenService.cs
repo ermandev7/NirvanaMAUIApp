@@ -1,4 +1,5 @@
-﻿using NirvanaMAUIApp.Models;
+﻿using NirvanaMAUIApp.Generic;
+using NirvanaMAUIApp.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,10 +8,11 @@ using System.Threading.Tasks;
 
 namespace NirvanaMAUIApp.Services
 {
-    public interface IAlmacenService
+    public interface IAlmacenService 
     {
-        Task<Data> get();
+        Task<List<AlmacenModels>> All();
         Task<bool> UpdateAlmacen(AlmacenModels almacen);
         Task<bool> DeleteAlmacen(int almacenId);
+        Task<bool> RegistrarNuevoAlmacen(AlmacenModels almacen);
     }
 }
