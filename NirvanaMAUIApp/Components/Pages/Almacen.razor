@@ -7,13 +7,9 @@
 @inject AlmacenStateService AlmacenStateService
 @inject NavigationManager NavigationManager
 @inject IDialogService DialogService
-
 @inject ISnackbar Snackbar
-
 @inject IAlmacenService service
-
 <h3>Almacén</h3>
-
 @if (_data == null)
 {
     <p><em>Cargando</em></p>
@@ -21,9 +17,6 @@
 else
 {
 
-    
-
-    
     @foreach (var result in _data)
     {
         <MudCard  Style="overflow: hidden; margin-bottom: 16px;" @key="@result.almacenId">
@@ -33,13 +26,9 @@ else
                     <MudCardContent Style="width: 100%;">
                         <MudTextField @bind-Value="result.nombre" Label="Nombre" />
                         <MudTextField @bind-Value="result.descripcion" Label="Descripción" />
-                       
                         <MudTextField @bind-Value="result.sucursalId" Label="Sucursal" />
                         <MudTextField @bind-Value="result.estado" Label="estado" />
-                   
-
                     </MudCardContent>
-                    
                 }
                 else
                 {
@@ -49,19 +38,15 @@ else
                         <MudText>Sucursal: @result.sucursalId</MudText>
                         <MudText>Estado: @result.estado</MudText>
                     </MudCardContent>
-                   
                 }
             </MudCardContent>
             <MudCardActions Style="display: flex; width: 100%;">
                 <MudButton Color="Color.Primary" OnClick="() => OpenEditDialog(result)">Editar</MudButton>
-
                 <MudButton Color="Color.Secondary" Style="width: 50%;" OnClick="() => Delete(result.almacenId)">Eliminar</MudButton>
             </MudCardActions>
         </MudCard>
     }
-
     <MudFab OnClick="() => OpenCreateDialog()" Class="boton-flotante" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" />
-    
 }
 <style>
     .boton-flotante {
@@ -73,14 +58,9 @@ else
 </style>
 
 @code {
-
-
     private List<AlmacenModels> _data;
     private bool isEditing = false;
     private int? currentlyEditingItemId = null;
-
-
-
     private async Task OpenCreateDialog()
     {
         // Si no se proporciona un objeto AlmacenModels, crea uno nuevo
@@ -99,11 +79,6 @@ else
         // Navega a la página del formulario de edición
         NavigationManager.NavigateTo("/EditAlmacenDialog");
     }
-
-
-
-
-
 
     private async Task Delete(int itemId)
     {

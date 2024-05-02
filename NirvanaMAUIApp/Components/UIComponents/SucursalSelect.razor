@@ -1,0 +1,53 @@
+
+@using NirvanaMAUIApp.Models
+@using NirvanaMAUIApp.Services
+@inject ISucursalServices SucursalService
+@inject ISnackbar Snackbar
+
+<MudSelect T="int" Value="SelectedSucursalId" Label="Sucursal" ValueChanged="OnSelectedSucursalIdChanged">
+    @foreach (var sucursal in ListaSucursales)
+    {
+        <MudSelectItem Value="@sucursal.sucursalId">@sucursal.nombre</MudSelectItem>
+    }
+</MudSelect>
+
+
+@code {
+    [Parameter]
+    public int SelectedSucursalId { get; set; }
+
+    [Parameter]
+    public EventCallback<int> SelectedSucursalIdChanged { get; set; }
+
+    private List<SucursalModels> ListaSucursales { get; set; } = new List<SucursalModels>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            ListaSucursales = await SucursalService.All();
+            if (ListaSucursales == null || !ListaSucursales.Any())
+            {
+                Snackbar.Add("No se encontraron sucursales.", Severity.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error al obtener las sucursales: {ex.Message}", Severity.Error);
+        }
+    }
+    private async Task OnSelectedSucursalIdChanged(int value)
+    {
+        SelectedSucursalId = value;
+        await SelectedSucursalIdChanged.InvokeAsync(value);
+    }
+    private async Task OnValueChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value.ToString(), out var newValue))
+        {
+            SelectedSucursalId = newValue;
+            await SelectedSucursalIdChanged.InvokeAsync(newValue);
+        }
+    }
+}

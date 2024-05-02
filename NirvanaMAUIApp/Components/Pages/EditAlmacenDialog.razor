@@ -6,7 +6,7 @@
 @using NirvanaMAUIApp.StateCurrent
 @inject NavigationManager NavigationManager
 @inject IAlmacenService AlmacenService
-@inject ISucursalServices SucursalService
+@using NirvanaMAUIApp.Components.UIComponents
 @inject ISnackbar Snackbar
  <MudText Typo="Typo.h5">@Title</MudText>
  <MudCardContent Style="max-height: 80%; overflow-y: auto;">
@@ -22,12 +22,13 @@
                 <MudForm Model="Almacen" @ref="form">
                     <MudTextField @bind-Value="Almacen.nombre" Label="Nombre" For="@(() => Almacen.nombre)" />
                     <MudTextField @bind-Value="Almacen.descripcion" Label="Descripción" For="@(() => Almacen.descripcion)" />
-                    <MudSelect T="int" @bind-Value="Almacen.sucursalId" Label="Sucursal">
-                        @foreach (var sucursal in ListaSucursales)
-                        {
-                            <MudSelectItem Value="@sucursal.sucursalId">@sucursal.nombre</MudSelectItem>
-                        }
-                    </MudSelect>
+
+                    <SucursalSelect @bind-SelectedSucursalId="Almacen.sucursalId" />
+
+
+
+
+                   
                     <MudTextField @bind-Value="Almacen.estado" Label="Estado" For="@(() => Almacen.estado)" />
                    
                 </MudForm>
@@ -40,10 +41,7 @@
     </MudCard>
 </MudCardContent>
 
-    
-
 @code {
-    private List<SucursalModels> ListaSucursales { get; set; }
 
     private AlmacenModels Almacen { get; set; }
     private bool Loading = false;
@@ -51,11 +49,7 @@
     private string Title { get; set; } = "Almacen";
     protected override async Task OnInitializedAsync()
     {
-        var r = await SucursalService.All(); // Especifica el tipo de datos
-        if (r != null)
-        {
-            ListaSucursales = r;
-        }
+        
         if (AlmacenStateService.CurrentAlmacen != null)
         {
             // Utiliza el objeto almacenado para la edición
@@ -99,7 +93,7 @@
         }
     }
    
-
+    
     private void Cancel()
     {
         // Navega de regreso a la lista de almacenes
