@@ -65,4 +65,8 @@
         <PackageReference Include="MudBlazor" Version="6.19.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="wwwroot\Images\" />
+    </ItemGroup>
+
 </Project>

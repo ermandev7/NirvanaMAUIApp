@@ -2,7 +2,7 @@
 using MudBlazor.Services;
 using NirvanaMAUIApp.Services;
 using NirvanaMAUIApp.StateCurrent;
-
+using System.Net.Http.Headers;
 namespace NirvanaMAUIApp
 {
     public static class MauiProgram
@@ -25,9 +25,16 @@ namespace NirvanaMAUIApp
             builder.Services.AddSingleton<IAlmacenService, AlmacenService>();
             builder.Services.AddSingleton<ISucursalServices, SucursalService>();
             builder.Services.AddScoped<AlmacenStateService>();
+            builder.Services.AddSingleton<ILoginService , LoginService>();
+
 
 #endif
+           
+            builder.Services.AddScoped(sp => new HttpClient
+            {
+                BaseAddress = new Uri("http://192.168.1.145/CORE/api/")
 
+            }) ;
             return builder.Build();
         }
     }

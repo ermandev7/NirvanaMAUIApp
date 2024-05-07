@@ -46,6 +46,7 @@ else
             </MudCardActions>
         </MudCard>
     }
+  
     <MudFab OnClick="() => OpenCreateDialog()" Class="boton-flotante" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" />
 
 }
@@ -116,5 +117,11 @@ else
         _data = await service.All();
 
     }
-    protected override async Task OnInitializedAsync() => _data = await service.All();
+    protected override async Task OnInitializedAsync()
+    {
+        _data = await service.All();
+        if(_data.Count() <= 0)
+            Snackbar.Add("Sin datos para mostrar", Severity.Warning);
+    }
+    
 }

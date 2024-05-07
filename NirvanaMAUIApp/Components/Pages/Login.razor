@@ -1,0 +1,61 @@
+﻿@page "/"
+@using NirvanaMAUIApp.Components.Layout
+@layout LoginLayout
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using NirvanaMAUIApp.Models
+@using NirvanaMAUIApp.Services
+@inject NavigationManager NavigationManager
+@inject ILoginService LoginService
+@inject ISnackbar Snackbar
+<MudGrid>
+    <MudItem xs="12" sm="7">
+        <MudPaper Class="pa-4">
+            <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+                <MudImage Src="/Images/user.png" Width="332" Height="250" Alt="Swedish Farm House" Elevation="25" Class="rounded-lg ma-4" />
+                <MudTextField T="string" Label="Username" Required="true" RequiredError="User name is required!" @bind-Value="username" />
+                <MudTextField T="string" Label="Password" Required="true" RequiredError="Password is required!" InputType="InputType.Password" @bind-Value="password" />
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" DisableElevation="true" OnClick="login">LOGIN</MudButton>
+            </MudForm>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    bool success;
+    string[] errors = { };
+    private bool Loading = false;
+    private MudForm form;
+    private string username;
+    private string password;
+    private LoginRequest loginRequest { get; set; }
+
+    private async Task login()
+    {
+        await form.Validate();
+
+        if (form.IsValid)
+        {
+            Loading = true;
+            loginRequest = new LoginRequest
+                {
+                    username = username,
+                    password = password
+                };
+
+            bool isSuccess = await LoginService.Login(loginRequest);
+            Loading = false;
+
+            if (isSuccess)
+            {
+                Snackbar.Add("Inicio de sesión exitoso", Severity.Success);
+                NavigationManager.NavigateTo("/home");
+            }
+            else
+            {
+                Snackbar.Add("Error al iniciar sesión", Severity.Error);
+              //  NavigationManager.NavigateTo("/home");
+            }
+        }
+    }
+}
