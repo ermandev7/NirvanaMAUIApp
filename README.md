@@ -1,7 +1,7 @@
 # CRUD API NET CORE MAUI
 
 ## Descripción
-Es unaplicacion que consume una api y tienes las operaciones basicas es de ejemplo 
+Es una aplicacion que consume una api y tienes las operaciones basicas es de ejemplo 
 
 ## Características
 - API completa
