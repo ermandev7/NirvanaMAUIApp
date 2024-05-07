@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Net.Http.Json;
+using NirvanaMAUIApp.Components.Pages;
 
 
 namespace NirvanaMAUIApp.Services
@@ -61,6 +62,43 @@ namespace NirvanaMAUIApp.Services
             }
 
 
+        }
+
+        public async Task<bool> DeleteSucursal(int iten)
+        {
+            var response = await _httpClient.DeleteAsync($"sucursal/Eliminar/{iten}");
+            if (!response.IsSuccessStatusCode)
+            {
+                // Aquí puedes manejar la respuesta si no fue exitosa
+                Console.WriteLine($"Error al eliminar: {response.StatusCode}");
+            }
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> RegistrarNuevo(SucursalModels sucursal)
+        {
+            var json = JsonSerializer.Serialize(sucursal);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync("sucursal/Registrar", content);
+            if (!response.IsSuccessStatusCode)
+            {
+                // Aquí puedes manejar la respuesta si no fue exitosa
+                Console.WriteLine($"Error al registrar: {response.StatusCode}");
+            }
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> Update(SucursalModels sucursal)
+        {
+            var json = JsonSerializer.Serialize(sucursal);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PutAsync($"sucursal/Modificar/{sucursal.sucursalId}", content);
+            if (!response.IsSuccessStatusCode)
+            {
+                // Aquí puedes manejar la respuesta si no fue exitosa
+                Console.WriteLine($"Error al actualizar: {response.StatusCode}");
+            }
+            return response.IsSuccessStatusCode;
         }
     }
 }

@@ -8,17 +8,38 @@
 @inject NavigationManager NavigationManager
 @inject ILoginService LoginService
 @inject ISnackbar Snackbar
+
+
 <MudGrid>
-    <MudItem xs="12" sm="7">
+   
+    <MudItem xs="12" sm="7" Class="justify-center">
+       
         <MudPaper Class="pa-4">
+           <div id="unique_id_scroll_section" class="ma-0" style="height:500px;overflow: auto;">
             <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
-                <MudImage Src="/Images/user.png" Width="332" Height="250" Alt="Swedish Farm House" Elevation="25" Class="rounded-lg ma-4" />
-                <MudTextField T="string" Label="Username" Required="true" RequiredError="User name is required!" @bind-Value="username" />
-                <MudTextField T="string" Label="Password" Required="true" RequiredError="Password is required!" InputType="InputType.Password" @bind-Value="password" />
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" DisableElevation="true" OnClick="login">LOGIN</MudButton>
+                    <MudImage Src="/Images/user.png" Width="343" Height="240" Alt="Swedish Farm House" Elevation="25" Class="rounded-lg ma-4" />
+             
+
+                <MudPaper Class="pa-4 mt-4">
+                    <MudTextField T="string" Label="Username" Required="true" RequiredError="User name is required!" @bind-Value="username" />
+                    <MudTextField T="string" Label="Password" Required="true" RequiredError="Password is required!" InputType="InputType.Password" @bind-Value="password" />
+                    <MudButton Style="margin-top: 16px;" Variant="Variant.Filled" Color="Color.Primary" DisableElevation="true" OnClick="login" Disabled="@Loading">
+                        @if (Loading)
+                        {
+                            <MudProgressCircular Size="Size.Small" Color="Color.Primary" />
+                        }
+                        LOGIN
+                    </MudButton>
+                </MudPaper>
+               
+                   
+                
             </MudForm>
+            </div>
         </MudPaper>
+       
     </MudItem>
+   
 </MudGrid>
 
 @code {
@@ -54,7 +75,7 @@
             else
             {
                 Snackbar.Add("Error al iniciar sesión", Severity.Error);
-              //  NavigationManager.NavigateTo("/home");
+                NavigationManager.NavigateTo("/");
             }
         }
     }

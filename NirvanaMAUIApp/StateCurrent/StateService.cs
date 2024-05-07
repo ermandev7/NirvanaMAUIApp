@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace NirvanaMAUIApp.StateCurrent
 {
-    public class AlmacenStateService
+    public class StateService
     {
         public AlmacenModels CurrentAlmacen { get; set; }
+        public SucursalModels CurrentSucursal { get; set; }
     }
 }

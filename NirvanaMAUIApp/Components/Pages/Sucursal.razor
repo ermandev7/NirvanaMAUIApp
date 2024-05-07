@@ -1,16 +1,12 @@
-﻿@page "/almacen"
-@using NirvanaMAUIApp.Generic;
+﻿@page "/sucursal"
 @using NirvanaMAUIApp.Models
 @using NirvanaMAUIApp.Services
-@using MudBlazor
 @using NirvanaMAUIApp.StateCurrent
-@inject StateService AlmacenStateService
-@inject NavigationManager NavigationManager
-@inject IDialogService DialogService
+@inject ISucursalServices service
 @inject ISnackbar Snackbar
-@inject IAlmacenService service
-
-
+@inject IDialogService DialogService
+@inject StateService StateService
+@inject NavigationManager NavigationManager
 @if (_data == null)
 {
     <p><em>Cargando</em></p>
@@ -21,34 +17,34 @@ else
 
     @foreach (var result in _data)
     {
-        <MudCard  Style="overflow: hidden; margin-bottom: 16px;" @key="@result.almacenId">
+        <MudCard Style="overflow: hidden; margin-bottom: 16px;" @key="@result.sucursalId">
             <MudCardContent Style="width: 100%;">
-                @if (currentlyEditingItemId == result.almacenId)
+                @if (currentlyEditingItemId == result.sucursalId)
                 {
                     <MudCardContent Style="width: 100%;">
                         <MudTextField @bind-Value="result.nombre" Label="Nombre" />
-                        <MudTextField @bind-Value="result.descripcion" Label="Descripción" />
-                        <MudTextField @bind-Value="result.sucursalId" Label="Sucursal" />
-                        <MudTextField @bind-Value="result.estado" Label="estado" />
+                        <MudTextField @bind-Value="result.direccion" Label="Direccion" />
+                        <MudTextField @bind-Value="result.telefono" Label="Telefono" />
+                     
                     </MudCardContent>
                 }
                 else
                 {
                     <MudCardContent Style="width: 100%;">
                         <MudText Typo="Typo.h4">Nombre: @result.nombre</MudText>
-                        <MudText>Descripción: @result.descripcion</MudText>
-                        <MudText>Sucursal: @result.sucursalId</MudText>
-                        <MudText>Estado: @result.estado</MudText>
+                        <MudText>Descripción: @result.direccion</MudText>
+                        <MudText>Sucursal: @result.telefono</MudText>
+                     
                     </MudCardContent>
                 }
             </MudCardContent>
             <MudCardActions Style="display: flex; width: 100%;">
                 <MudButton Color="Color.Primary" OnClick="() => OpenEditDialog(result)">Editar</MudButton>
-                <MudButton Color="Color.Secondary" Style="width: 50%;" OnClick="() => Delete(result.almacenId)">Eliminar</MudButton>
+                <MudButton Color="Color.Secondary" Style="width: 50%;" OnClick="() => Delete(result.sucursalId)">Eliminar</MudButton>
             </MudCardActions>
         </MudCard>
     }
-  
+
     <MudFab OnClick="() => OpenCreateDialog()" Class="boton-flotante" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" />
 
 }
@@ -60,31 +56,33 @@ else
         z-index: 1000; /* Asegura que el botón esté sobre otros elementos */
     }
 </style>
-
 @code {
-    private List<AlmacenModels> _data;
+    private List<SucursalModels> _data;
     private bool isEditing = false;
     private int? currentlyEditingItemId = null;
-    
+    protected override async Task OnInitializedAsync()
+    {
+        _data = await service.All();
+        if (_data.Count() <= 0)
+            Snackbar.Add("Sin datos para mostrar", Severity.Warning);
+    }
     private async Task OpenCreateDialog()
     {
         // Si no se proporciona un objeto AlmacenModels, crea uno nuevo
-        AlmacenModels almacen = new AlmacenModels();
+        SucursalModels sucursal = new SucursalModels();
 
-        AlmacenStateService.CurrentAlmacen = almacen;
+        StateService.CurrentSucursal = sucursal;
 
         // Navega a la página del formulario de edición
-        NavigationManager.NavigateTo("/EditAlmacenDialog");
+        NavigationManager.NavigateTo("/EditSucursalFrom");
     }
-
-    private async Task OpenEditDialog(AlmacenModels almacen)
+    private async Task OpenEditDialog(SucursalModels sucursal)
     {
-        AlmacenStateService.CurrentAlmacen = almacen;
+        StateService.CurrentSucursal = sucursal;
 
         // Navega a la página del formulario de edición
-        NavigationManager.NavigateTo("/EditAlmacenDialog");
+        NavigationManager.NavigateTo("/EditSucursalFrom");
     }
-
     private async Task Delete(int itemId)
     {
         bool? result = await DialogService.ShowMessageBox(
@@ -97,7 +95,7 @@ else
         if (result == true)
         {
             // El usuario confirmó la eliminación
-            var success = await service.DeleteAlmacen(itemId);
+            var success = await service.DeleteSucursal(itemId);
             if (success)
             {
                 Snackbar.Add("Almacén eliminado con éxito", Severity.Success);
@@ -114,17 +112,9 @@ else
             Snackbar.Add("Eliminación cancelada", Severity.Info);
         }
     }
-
     private async void LoadData()
     {
         _data = await service.All();
 
     }
-    protected override async Task OnInitializedAsync()
-    {
-        _data = await service.All();
-        if(_data.Count() <= 0)
-            Snackbar.Add("Sin datos para mostrar", Severity.Warning);
-    }
-    
 }

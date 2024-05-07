@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using MudBlazor;
 using MudBlazor.Services;
 using NirvanaMAUIApp.Services;
 using NirvanaMAUIApp.StateCurrent;
@@ -18,14 +19,17 @@ namespace NirvanaMAUIApp
                 });
             builder.Services.AddMudServices();
             builder.Services.AddMauiBlazorWebView();
+            // En el método CreateMauiApp de tu archivo MauiProgram.cs
+           
 
 #if DEBUG
-    		builder.Services.AddBlazorWebViewDeveloperTools();
+            builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();
             builder.Services.AddSingleton<IAlmacenService, AlmacenService>();
             builder.Services.AddSingleton<ISucursalServices, SucursalService>();
-            builder.Services.AddScoped<AlmacenStateService>();
+            builder.Services.AddScoped<StateService>();
             builder.Services.AddSingleton<ILoginService , LoginService>();
+          
 
 
 #endif

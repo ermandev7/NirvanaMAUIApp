@@ -1,14 +1,12 @@
-﻿@page "/EditAlmacenDialog"
-@inject StateService AlmacenStateService
-@using NirvanaMAUIApp.Generic
+﻿@page "/EditSucursalFrom"
 @using NirvanaMAUIApp.Models
 @using NirvanaMAUIApp.Services
 @using NirvanaMAUIApp.StateCurrent
+@inject StateService StateService
 @inject NavigationManager NavigationManager
-@inject IAlmacenService AlmacenService
-@using NirvanaMAUIApp.Components.UIComponents
+@inject ISucursalServices SucursalServices
 @inject ISnackbar Snackbar
- <MudText Typo="Typo.h5">@Title</MudText>
+<MudText Typo="Typo.h5">@Title</MudText>
  <MudCardContent Style="max-height: 80%; overflow-y: auto;">
     <MudCard>
         <MudCardContent >
@@ -19,13 +17,13 @@
             }
             else
             {
-                <MudForm Model="Almacen" @ref="form">
-                    <MudTextField @bind-Value="Almacen.nombre" Label="Nombre" For="@(() => Almacen.nombre)" />
-                    <MudTextField @bind-Value="Almacen.descripcion" Label="Descripción" For="@(() => Almacen.descripcion)" />
+                <MudForm Model="Sucursal" @ref="form">
+                    <MudTextField @bind-Value="Sucursal.nombre" Label="Nombre" For="@(() => Sucursal.nombre)" />
+                    <MudTextField @bind-Value="Sucursal.direccion" Label="Direccion" For="@(() => Sucursal.direccion)" />
 
-                    <SucursalSelect @bind-SelectedSucursalId="Almacen.sucursalId" />
+                  
 
-                    <MudTextField @bind-Value="Almacen.estado" Label="Estado" For="@(() => Almacen.estado)" />
+                    <MudTextField @bind-Value="Sucursal.telefono" Label="Telefono" For="@(() => Sucursal.telefono)" />
                    
                 </MudForm>
             }
@@ -36,32 +34,34 @@
         </MudCardActions>
     </MudCard>
 </MudCardContent>
-
 @code {
-
-    private AlmacenModels Almacen { get; set; }
+    private SucursalModels Sucursal { get; set; }
     private bool Loading = false;
     private MudForm form;
-    private string Title { get; set; } = "Almacen";
+    private string Title { get; set; } = "Sucursal";
     protected override async Task OnInitializedAsync()
     {
-        
-        if (AlmacenStateService.CurrentAlmacen != null)
+
+        if (StateService.CurrentSucursal != null)
         {
             // Utiliza el objeto almacenado para la edición
-         
-            Almacen = AlmacenStateService.CurrentAlmacen;
-           
+
+            Sucursal = StateService.CurrentSucursal;
+
         }
         else
         {
             // Crea un nuevo objeto AlmacenModels para un nuevo almacén
-           
-            Almacen = new AlmacenModels();
-           
+
+            Sucursal = new SucursalModels();
+
         }
     }
-
+    private void Cancel()
+    {
+        // Navega de regreso a la lista de almacenes
+        NavigationManager.NavigateTo("/sucursal");
+    }
     private async Task Save()
     {
         await form.Validate();
@@ -69,9 +69,9 @@
         if (form.IsValid)
         {
             Loading = true;
-            bool success = Almacen.almacenId == 0
-                ? await AlmacenService.RegistrarNuevoAlmacen(Almacen)
-                : await AlmacenService.UpdateAlmacen(Almacen);
+            bool success = Sucursal.sucursalId == 0
+                ? await SucursalServices.RegistrarNuevo(Sucursal)
+                : await SucursalServices.Update(Sucursal);
             Loading = false;
 
             if (success)
@@ -79,7 +79,7 @@
                 //Snackbar.Add("Almacén guardado con éxito", Severity.Success);
                 // Navega de regreso a la lista de almacenes
                 Snackbar.Add($"{Title} guardado con éxito", Severity.Success);
-                NavigationManager.NavigateTo("/almacen");
+                NavigationManager.NavigateTo("/sucursal");
             }
             else
             {
@@ -87,12 +87,5 @@
                 Snackbar.Add($"Error al {Title.ToLower()}", Severity.Error);
             }
         }
-    }
-   
-    
-    private void Cancel()
-    {
-        // Navega de regreso a la lista de almacenes
-        NavigationManager.NavigateTo("/almacen");
     }
 }
